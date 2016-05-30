@@ -8,6 +8,8 @@
 
 #import "DSRouter.h"
 
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+
 @implementation DSRouter
 
 + (instancetype)sharedRouter {
@@ -298,7 +300,7 @@
  extraParams:(NSDictionary *)extraParams
 {
     // 判断url是否包含“?”
-    self.isURLFormatWithQuestionMark = [url containsString:@"?"];
+    self.isURLFormatWithQuestionMark = [self isUrlContainsQuestionMark:url];
     
     RouterParams *params = [self routerParamsForUrl:url extraParams: extraParams];
     DSRouterOptions *options = params.routerOptions;
@@ -505,6 +507,15 @@
         }
     }];
     return params;
+}
+
+- (BOOL)isUrlContainsQuestionMark:(NSString *)url {
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")) {
+        return [url containsString:@"?"];
+    } else {
+        NSRange range = [url rangeOfString:@"?"];
+        return (range.location != NSNotFound);
+    }
 }
 
 - (UIViewController *)controllerForRouterParams:(RouterParams *)params {
